@@ -10,8 +10,10 @@ class Social extends Model
 {
     use HasFactory;
 
+    protected $fillable = ['facebook', 'instagram', 'twitter', 'website', 'user_id'];
+
     public function user(): BelongsTo
     {
-       return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class);
     }
 }

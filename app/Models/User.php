@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -24,6 +25,12 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'username',
+        'profile_image',
+        'cover_image',
+        'city',
+        'country',
+        'about_me'
     ];
 
     /**
@@ -46,6 +53,55 @@ class User extends Authenticatable
         'role' => Role::class
     ];
 
+
+    public function profileImageUrl(): string
+    {
+        return Storage::url($this->profile_image ? $this->profile_image : "users/user-default.png");
+    }
+
+    public function coverImageUrl(): string
+    {
+        return Storage::url($this->cover_image);
+    }
+
+    public function hasCoverImage(): bool
+    {
+        return !is_null($this->cover_image);
+    }
+
+    public function updateSettings($data)
+    {
+        $this->update($data['user']);
+        $this->updateSocialProfile($data['social']);
+        $this->updateOptions($data['options']);
+    }
+
+
+    public function updateSocialProfile($social)
+    {
+        Social::updateOrCreate(
+            [
+                'user_id' => $this->id,
+            ],
+            $social
+        );
+    }
+
+    public function updateOptions($options)
+    {
+        $this->setting()->update($options);
+    }
+
+
+    public static function makeDirectory(): string
+    {
+        $directory = 'users';
+
+        Storage::makeDirectory($directory);
+
+        return $directory;
+    }
+
     public function images(): HasMany
     {
         return $this->hasMany(Image::class);
@@ -53,7 +109,24 @@ class User extends Authenticatable
 
     public function social(): HasOne
     {
-        return $this->hasOne(Social::class);
+        return $this->hasOne(Social::class)->withDefault();
+    }
+
+    public function setting(): HasOne
+    {
+        return $this->hasOne(Setting::class)->withDefault();
+    }
+
+    protected static function booted()
+    {
+        static::created(function ($user) {
+            $user->setting()->create([
+                'email_notification' => [
+                    'new_comment' => 1,
+                    'new_image' => 1
+                ]
+            ]);
+        });
     }
 
     public function getImagesCount(): string
@@ -61,4 +134,6 @@ class User extends Authenticatable
         $imagesCount = $this->images()->published()->count();
         return $imagesCount . ' ' . str()->plural('image', $imagesCount);
     }
+
+
 }
