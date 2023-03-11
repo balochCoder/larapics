@@ -85,15 +85,35 @@
                         <legend>Account</legend>
                         <div class="mb-3">
                             <label for="email" class="form-label">Email address</label>
-                            <input type="email" name="account[email]" id="email" class="form-control">
+                            <input type="email" name="account[email]" id="email"
+                                   class="form-control @error('account.email') is-invalid @enderror"
+                                   value="{{old('account.email', $user->email)}}"
+                            >
+                            @error('account.email')
+                            <div class="invalid-feedback">
+                                {{$message}}
+                            </div>
+                            @enderror
                         </div>
                         <div class="mb-3">
                             <label for="password" class="form-label">Current Password</label>
-                            <input type="password" name="account[password]" id="password" class="form-control">
+                            <input type="password" name="account[password]" id="password"
+                                   class="form-control @error('account.password') is-invalid @enderror">
+                            @error('account.password')
+                            <div class="invalid-feedback">
+                                {{$message}}
+                            </div>
+                            @enderror
                         </div>
                         <div class="mb-3">
                             <label for="new_password" class="form-label">New Password</label>
-                            <input type="password" name="account[new_password]" id="new_password" class="form-control">
+                            <input type="password" name="account[new_password]" id="new_password"
+                                   class="form-control @error('account.new_password') is-invalid @enderror">
+                            @error('account.new_password')
+                            <div class="invalid-feedback">
+                                {{$message}}
+                            </div>
+                            @enderror
                         </div>
                         <div class="mb-3">
                             <label for="new_password_confirmation" class="form-label">New Password confirmation</label>
@@ -118,7 +138,9 @@
                             @enderror
                         </div>
                         <div class="mb-3">
-                            <img src="{{$user->hasCoverImage() ? $user->coverImageUrl() : 'https://via.placeholder.com/600x250&text=Cover Image'}}" class="img-fluid" alt="">
+                            <img
+                                src="{{$user->hasCoverImage() ? $user->coverImageUrl() : 'https://via.placeholder.com/600x250&text=Cover Image'}}"
+                                class="img-fluid" alt="">
                         </div>
                     </fieldset>
                     <fieldset class="mt-3">
